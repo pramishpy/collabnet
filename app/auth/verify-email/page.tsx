@@ -1,18 +1,19 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/components/ui/card'
-import { SignUpForm } from './signup-form'
 
-export default function SignUpPage() {
+export default function VerifyEmailPage() {
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>Join CollabNet</CardTitle>
+          <CardTitle>Check your email</CardTitle>
           <CardDescription>
-            Connect with researchers and developers at USM
+            We've sent you a confirmation link. Click it to activate your account.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <SignUpForm />
+          <p className="text-sm text-muted-foreground">
+            Don't see the email? Check your spam folder.
+          </p>
         </CardContent>
       </Card>
     </div>
