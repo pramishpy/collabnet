@@ -22,7 +22,10 @@ export function TagInput({ tags, setTags, placeholder = 'Add tags...', maxTags =
       addTag()
     } else if (e.key === 'Backspace' && inputValue === '' && tags.length > 0) {
       // Remove last tag on backspace if input is empty
-      removeTag(tags[tags.length - 1])
+      const lastTag = tags[tags.length - 1]
+      if (lastTag) {
+        removeTag(lastTag)
+      }
     }
   }
 
