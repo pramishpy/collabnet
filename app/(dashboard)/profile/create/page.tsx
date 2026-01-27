@@ -1,6 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { AvatarUpload } from '@/components/profile/avatar-upload'
+import { createClient } from '@/lib/supabase/client'
+import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'next/navigation'
@@ -21,6 +23,17 @@ export default function CreateProfilePage() {
   const [skills, setSkills] = useState<string[]>([])
   const [githubUsername, setGithubUsername] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [userId, setUserId] = useState<string | null>(null)
+
+  // Get user ID for avatar upload
+  useEffect(() => {
+    const getUser = async () => {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) setUserId(user.id)
+    }
+    getUser()
+  }, [])
 
   const {
     register,
@@ -70,6 +83,15 @@ export default function CreateProfilePage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
+            {userId && (
+              <div className="flex justify-center py-6">
+                <AvatarUpload
+                  userId={userId}
+                  userName="User"
+                  currentAvatarUrl={null}
+                />
+              </div>
+            )}
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               {/* Full Name */}
               <div className="space-y-2">

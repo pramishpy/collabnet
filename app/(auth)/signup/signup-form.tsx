@@ -1,8 +1,8 @@
 'use client'
 
-import { Button } from '@/components/components/ui/button'
-import { Input } from '@/components/components/ui/input'
-import { Label } from '@/components/components/ui/label'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { signup } from './actions'
 import { useFormStatus } from 'react-dom'
 import { useActionState } from 'react'
