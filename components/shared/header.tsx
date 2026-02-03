@@ -36,6 +36,9 @@ export async function Header() {
               <Button asChild>
                 <Link href="/signup">Sign Up</Link>
               </Button>
+              <Button variant="ghost" asChild>
+                <Link href="/projects">Projects</Link>
+              </Button>
             </>
           )}
         </nav>
