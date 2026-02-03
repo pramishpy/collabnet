@@ -5,6 +5,10 @@ import Link from 'next/link'
 import { ProjectCard } from '@/components/projects/project-card'
 import { ProjectsSearchClient } from '@/components/projects/projects-search-client'
 
+export const metadata = {
+  title: 'Discover Projects | CollabNet',
+  description: 'Browse research projects looking for collaborators at USM',
+}
 export default async function ProjectsPage({
   searchParams,
 }: {

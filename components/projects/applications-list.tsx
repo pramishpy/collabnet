@@ -123,7 +123,10 @@ export async function ApplicationsList({ projectId, applicationsCount }: Applica
 
                 {/* Actions */}
                 {application.status === 'pending' && (
-                  <ApplicationActions applicationId={application.id} />
+                  <ApplicationActions 
+                    applicationId={application.id}
+                    applicantName={application.profiles.full_name}
+                  />
                 )}
               </div>
             ))}

@@ -14,6 +14,8 @@ import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Loader2, Check } from 'lucide-react'
 import { applyToProject } from './actions'
+import { toast } from 'sonner'
+import { useRouter } from 'next/navigation'
 
 interface ApplyButtonProps {
   projectId: string
@@ -22,6 +24,7 @@ interface ApplyButtonProps {
 }
 
 export function ApplyButton({ projectId, hasApplied, applicationStatus }: ApplyButtonProps) {
+  const router = useRouter()
   const [open, setOpen] = useState(false)
   const [message, setMessage] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -34,13 +37,21 @@ export function ApplyButton({ projectId, hasApplied, applicationStatus }: ApplyB
       const result = await applyToProject(projectId, message)
       
       if (result.error) {
-        alert(result.error)
+        toast.error('Application Failed', {
+          description: result.error,
+        })
       } else {
+        toast.success('Application Submitted!', {
+          description: 'The project creator will review your application.',
+        })
         setOpen(false)
-        window.location.reload() // Refresh to show updated status
+        setMessage('')
+        router.refresh()
       }
     } catch (error) {
-      alert('Failed to submit application. Please try again.')
+      toast.error('Something went wrong', {
+        description: 'Please try again later.',
+      })
     } finally {
       setIsSubmitting(false)
     }

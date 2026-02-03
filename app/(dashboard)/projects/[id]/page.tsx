@@ -8,6 +8,32 @@ import { Calendar, Users, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { ApplyButton } from '@/components/projects/apply-button'
 import { ApplicationsList } from '@/components/projects/applications-list'
+import type { Metadata } from 'next'
+
+export async function generateMetadata({
+  params,
+}: {
+  params: { id: string }
+}): Promise<Metadata> {
+  const supabase = await createClient()
+  
+  const { data: project } = await supabase
+    .from('projects')
+    .select('title, description')
+    .eq('id', params.id)
+    .single()
+
+  if (!project) {
+    return {
+      title: 'Project Not Found | CollabNet',
+    }
+  }
+
+  return {
+    title: `${project.title} | CollabNet`,
+    description: project.description.slice(0, 160),
+  }
+}
 
 export default async function ProjectDetailPage({
   params,

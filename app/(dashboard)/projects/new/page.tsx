@@ -18,6 +18,7 @@ export default function NewProjectPage() {
   const router = useRouter()
   const [requiredSkills, setRequiredSkills] = useState<string[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [descriptionLength, setDescriptionLength] = useState(0)
 
   const {
     register,
@@ -87,12 +88,21 @@ export default function NewProjectPage() {
 
               {/* Project Description */}
               <div className="space-y-2">
-                <Label htmlFor="description">
-                  Description <span className="text-red-500">*</span>
-                </Label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="description">
+                    Description <span className="text-red-500">*</span>
+                  </Label>
+                  <span className="text-xs text-muted-foreground">
+                    {descriptionLength}/2000
+                  </span>
+                </div>
                 <Textarea
                   id="description"
                   {...register('description')}
+                  onChange={(e) => {
+                    setDescriptionLength(e.target.value.length)
+                    register('description').onChange(e)
+                  }}
                   placeholder="Describe your project: What problem does it solve? What will collaborators help build? What's the expected timeline?"
                   rows={8}
                 />
