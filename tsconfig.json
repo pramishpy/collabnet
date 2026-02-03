@@ -15,6 +15,7 @@
     "incremental": true,
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,
+    "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
       "@/components/*": ["components/*"],
