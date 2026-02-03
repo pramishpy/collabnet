@@ -17,6 +17,12 @@ export async function generateEmbedding(text: string): Promise<number[]> {
     return cached
   }
 
+  // Check if API key is configured
+  if (!process.env.OPENAI_API_KEY) {
+    console.warn('OPENAI_API_KEY not configured, skipping embedding generation')
+    throw new Error('OpenAI API key not configured')
+  }
+
   try {
     const response = await openai.embeddings.create({
       model: 'text-embedding-3-small', // 1536 dimensions, cost-effective
@@ -40,6 +46,9 @@ export async function generateEmbedding(text: string): Promise<number[]> {
     return embedding
   } catch (error) {
     console.error('Error generating embedding:', error)
+    if (error instanceof Error) {
+      throw new Error(`Failed to generate embedding: ${error.message}`)
+    }
     throw new Error('Failed to generate embedding')
   }
 }
