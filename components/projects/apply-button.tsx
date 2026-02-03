@@ -17,11 +17,16 @@ import { applyToProject } from './actions'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 
+type ApplicationStatus = 'pending' | 'accepted' | 'rejected'
+
 interface ApplyButtonProps {
   projectId: string
   hasApplied: boolean
   applicationStatus?: string
 }
+
+const isApplicationStatus = (value?: string): value is ApplicationStatus =>
+  value === 'pending' || value === 'accepted' || value === 'rejected'
 
 export function ApplyButton({ projectId, hasApplied, applicationStatus }: ApplyButtonProps) {
   const router = useRouter()
@@ -58,20 +63,23 @@ export function ApplyButton({ projectId, hasApplied, applicationStatus }: ApplyB
   }
 
   if (hasApplied) {
-    const statusColors = {
+    const statusColors: Record<ApplicationStatus, string> = {
       pending: 'bg-yellow-100 text-yellow-800 border-yellow-200',
       accepted: 'bg-green-100 text-green-800 border-green-200',
       rejected: 'bg-red-100 text-red-800 border-red-200',
     }
 
+    const status: ApplicationStatus = isApplicationStatus(applicationStatus) ? applicationStatus : 'pending'
+    const statusLabel = status.charAt(0).toUpperCase() + status.slice(1)
+
     return (
       <Button
         variant="outline"
-        className={statusColors[applicationStatus as keyof typeof statusColors]}
+        className={statusColors[status]}
         disabled
       >
         <Check className="mr-2 h-4 w-4" />
-        Applied · {applicationStatus?.charAt(0).toUpperCase() + applicationStatus?.slice(1)}
+        Applied · {statusLabel}
       </Button>
     )
   }

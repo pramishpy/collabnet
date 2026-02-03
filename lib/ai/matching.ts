@@ -14,9 +14,14 @@ function cosineSimilarity(a: number[], b: number[]): number {
   let normB = 0
   
   for (let i = 0; i < a.length; i++) {
-    dotProduct += a[i] * b[i]
-    normA += a[i] * a[i]
-    normB += b[i] * b[i]
+    const ai = a[i]
+    const bi = b[i]
+
+    if (ai === undefined || bi === undefined) continue
+
+    dotProduct += ai * bi
+    normA += ai * ai
+    normB += bi * bi
   }
   
   return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB))
@@ -61,16 +66,18 @@ export async function findMatchingProfiles(
       const similarity = cosineSimilarity(projectEmbedding, profileEmbedding)
       
       // Bonus points for skill overlap
-      const skillOverlap = profile.skills.filter(skill =>
-        project.required_skills.includes(skill)
+      const profileSkills = (profile.skills ?? []) as string[]
+      const requiredSkills = (project.required_skills ?? []) as string[]
+      const skillOverlap = profileSkills.filter((skill: string) =>
+        requiredSkills.includes(skill)
       ).length
       const skillBonus = skillOverlap * 0.05 // 5% bonus per matching skill
       
       return {
         ...profile,
         match_score: Math.min(similarity + skillBonus, 1),
-        matching_skills: profile.skills.filter(skill =>
-          project.required_skills.includes(skill)
+        matching_skills: profileSkills.filter((skill: string) =>
+          requiredSkills.includes(skill)
         ),
       }
     })
@@ -121,22 +128,24 @@ export async function findMatchingProjects(
   }
 
   // Calculate similarity scores
+  const profileSkills = (profile.skills ?? []) as string[]
   const matches = projects
     .map(project => {
       const projectEmbedding = JSON.parse(project.embedding)
       const similarity = cosineSimilarity(profileEmbedding, projectEmbedding)
       
       // Bonus for skill match
-      const skillOverlap = profile.skills.filter(skill =>
-        project.required_skills.includes(skill)
+      const requiredSkills = (project.required_skills ?? []) as string[]
+      const skillOverlap = profileSkills.filter((skill: string) =>
+        requiredSkills.includes(skill)
       ).length
       const skillBonus = skillOverlap * 0.05
       
       return {
         ...project,
         match_score: Math.min(similarity + skillBonus, 1),
-        matching_skills: profile.skills.filter(skill =>
-          project.required_skills.includes(skill)
+        matching_skills: profileSkills.filter((skill: string) =>
+          requiredSkills.includes(skill)
         ),
       }
     })

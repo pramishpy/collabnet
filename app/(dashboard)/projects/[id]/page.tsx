@@ -9,6 +9,7 @@ import Link from 'next/link'
 import { ApplyButton } from '@/components/projects/apply-button'
 import { ApplicationsList } from '@/components/projects/applications-list'
 import type { Metadata } from 'next'
+import { MatchExplanation } from '@/components/projects/match-explanation'
 
 export async function generateMetadata({
   params,
@@ -200,7 +201,7 @@ export default async function ProjectDetailPage({
               </CardHeader>
               <CardContent>
                 <div className="flex flex-wrap gap-2">
-                  {project.required_skills.map((skill) => (
+                  {project.required_skills.map((skill: string) => (
                     <Badge key={skill} variant="secondary">
                       {skill}
                     </Badge>

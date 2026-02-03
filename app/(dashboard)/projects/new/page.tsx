@@ -14,6 +14,10 @@ import { projectSchema, type ProjectFormData } from '@/lib/validations/project'
 import { createProject } from './actions'
 import { Loader2, Plus } from 'lucide-react'
 
+type ProjectFormValues = Omit<ProjectFormData, 'status'> & {
+  status?: 'recruiting' | 'ongoing' | 'completed'
+}
+
 export default function NewProjectPage() {
   const router = useRouter()
   const [requiredSkills, setRequiredSkills] = useState<string[]>([])
@@ -25,7 +29,7 @@ export default function NewProjectPage() {
     handleSubmit,
     formState: { errors },
     setValue,
-  } = useForm<ProjectFormData>({
+  } = useForm<ProjectFormValues>({
     resolver: zodResolver(projectSchema),
     defaultValues: {
       required_skills: [],
@@ -39,10 +43,15 @@ export default function NewProjectPage() {
     setValue('required_skills', newSkills, { shouldValidate: true })
   }
 
-  const onSubmit = async (data: ProjectFormData) => {
+  const onSubmit = async (data: ProjectFormValues) => {
     setIsSubmitting(true)
     try {
-      const result = await createProject(data)
+      const payload: ProjectFormData = {
+        ...data,
+        status: data.status ?? 'recruiting',
+      }
+
+      const result = await createProject(payload)
       
       if (result.error) {
         alert(result.error)

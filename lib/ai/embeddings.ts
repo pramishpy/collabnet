@@ -11,7 +11,12 @@ export async function generateEmbedding(text: string): Promise<number[]> {
       input: text.substring(0, 8000), // Token limit
     })
 
-    return response.data[0].embedding
+    const embedding = response.data?.[0]?.embedding
+    if (!embedding) {
+      throw new Error('No embedding returned from OpenAI')
+    }
+
+    return embedding
   } catch (error) {
     console.error('Error generating embedding:', error)
     throw new Error('Failed to generate embedding')

@@ -3,7 +3,8 @@ import { Button } from '@/components/ui/button'
 import { Plus } from 'lucide-react'
 import Link from 'next/link'
 import { ProjectCard } from '@/components/projects/project-card'
-import { ProjectsSearchClient } from '@/components/projects/projects-search-client'
+import { ProjectsSearchClient } from '@/components/projects/search/projects-search-client'
+
 
 export const metadata = {
   title: 'Discover Projects | CollabNet',
