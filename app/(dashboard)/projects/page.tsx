@@ -1,14 +1,19 @@
 import { createClient } from '@/lib/supabase/server'
 import { Button } from '@/components/ui/button'
-import { Plus, Search } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import Link from 'next/link'
 import { ProjectCard } from '@/components/projects/project-card'
-import { Input } from '@/components/ui/input'
+import { ProjectsSearchClient } from '@/components/projects/projects-search-client'
 
-export default async function ProjectsPage() {
+export default async function ProjectsPage({
+  searchParams,
+}: {
+  searchParams: { q?: string; skills?: string; status?: string }
+}) {
   const supabase = await createClient()
 
-  const { data: projects } = await supabase
+  // Build query
+  let query = supabase
     .from('projects')
     .select(`
       *,
@@ -18,8 +23,39 @@ export default async function ProjectsPage() {
         role
       )
     `)
-    .eq('status', 'recruiting')
-    .order('created_at', { ascending: false })
+
+  // Filter by status
+  const statusFilter = searchParams.status?.split(',').filter(Boolean) || ['recruiting']
+  if (statusFilter.length > 0) {
+    query = query.in('status', statusFilter)
+  }
+
+  // Filter by skills
+  if (searchParams.skills) {
+    const skills = searchParams.skills.split(',').filter(Boolean)
+    if (skills.length > 0) {
+      query = query.overlaps('required_skills', skills)
+    }
+  }
+
+  // Search by text
+  if (searchParams.q) {
+    const searchTerm = `%${searchParams.q}%`
+    query = query.or(`title.ilike.${searchTerm},description.ilike.${searchTerm}`)
+  }
+
+  const { data: projects } = await query.order('created_at', { ascending: false })
+
+  // Get all unique skills for filter
+  const { data: allProjects } = await supabase
+    .from('projects')
+    .select('required_skills')
+
+  const allSkills = Array.from(
+    new Set(
+      allProjects?.flatMap((p) => p.required_skills) || []
+    )
+  ).sort()
 
   return (
     <div className="min-h-screen p-8 bg-muted/30">
@@ -40,14 +76,15 @@ export default async function ProjectsPage() {
           </Button>
         </div>
 
-        {/* Search Bar */}
-        <div className="relative">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search projects by title or skills..."
-            className="pl-10"
-          />
-        </div>
+        {/* Search and Filter - Client Component */}
+        <ProjectsSearchClient availableSkills={allSkills} />
+
+        {/* Results Count */}
+        {searchParams.q && (
+          <p className="text-sm text-muted-foreground">
+            Found {projects?.length || 0} projects matching "{searchParams.q}"
+          </p>
+        )}
 
         {/* Projects Grid */}
         {projects && projects.length > 0 ? (
@@ -57,14 +94,20 @@ export default async function ProjectsPage() {
             ))}
           </div>
         ) : (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground mb-4">No projects yet. Be the first to post one!</p>
-            <Button asChild>
-              <Link href="/projects/new">
-                <Plus className="mr-2 h-4 w-4" />
-                Create Project
-              </Link>
-            </Button>
+          <div className="text-center py-12 border-2 border-dashed rounded-lg">
+            <p className="text-muted-foreground mb-4">
+              {searchParams.q || searchParams.skills
+                ? 'No projects match your search criteria'
+                : 'No projects yet. Be the first to post one!'}
+            </p>
+            {!searchParams.q && !searchParams.skills && (
+              <Button asChild>
+                <Link href="/projects/new">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Create Project
+                </Link>
+              </Button>
+            )}
           </div>
         )}
       </div>
