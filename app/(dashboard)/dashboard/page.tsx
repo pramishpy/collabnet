@@ -113,7 +113,6 @@ export default async function DashboardPage() {
           </Card>
         </div>
 
-        {/* AI Recommendations */}
         <Suspense fallback={<RecommendationsSkeleton />}>
           <RecommendedProjects />
         </Suspense>
