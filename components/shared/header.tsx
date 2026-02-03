@@ -25,6 +25,10 @@ export async function Header() {
               <Button variant="ghost" asChild>
                 <Link href="/profile">Profile</Link>
               </Button>
+              <Button variant="ghost" asChild>
+                <Link href="/analytics">Analytics</Link>
+              </Button>
+
               <form action="/auth/signout" method="post">
                 <Button variant="outline" type="submit">
                   Sign Out
@@ -44,6 +48,9 @@ export async function Header() {
               </Button>
               <Button variant="ghost" asChild>
                 <Link href="/my-projects">My Projects</Link>
+              </Button>
+              <Button variant="ghost" asChild>
+                <Link href="/analytics">Analytics</Link>
               </Button>
 
             </>

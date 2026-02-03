@@ -1,10 +1,10 @@
-import { createClient } from '@/lib/supabase/server'
 import { Button } from '@/components/ui/button'
 import { Plus } from 'lucide-react'
 import Link from 'next/link'
 import { ProjectCard } from '@/components/projects/project-card'
 import { ProjectsSearchClient } from '@/components/projects/search/projects-search-client'
-
+import { getProjectsWithMatchScores } from './actions'
+import { createClient } from '@/lib/supabase/server'
 
 export const metadata = {
   title: 'Discover Projects | CollabNet',
@@ -17,39 +17,12 @@ export default async function ProjectsPage({
 }) {
   const supabase = await createClient()
 
-  // Build query
-  let query = supabase
-    .from('projects')
-    .select(`
-      *,
-      profiles:creator_id (
-        full_name,
-        avatar_url,
-        role
-      )
-    `)
-
-  // Filter by status
-  const statusFilter = searchParams.status?.split(',').filter(Boolean) || ['recruiting']
-  if (statusFilter.length > 0) {
-    query = query.in('status', statusFilter)
-  }
-
-  // Filter by skills
-  if (searchParams.skills) {
-    const skills = searchParams.skills.split(',').filter(Boolean)
-    if (skills.length > 0) {
-      query = query.overlaps('required_skills', skills)
-    }
-  }
-
-  // Search by text
-  if (searchParams.q) {
-    const searchTerm = `%${searchParams.q}%`
-    query = query.or(`title.ilike.${searchTerm},description.ilike.${searchTerm}`)
-  }
-
-  const { data: projects } = await query.order('created_at', { ascending: false })
+  // Get projects with match scores
+  const projects = await getProjectsWithMatchScores({
+    q: searchParams.q,
+    skills: searchParams.skills,
+    status: searchParams.status,
+  })
 
   // Get all unique skills for filter
   const { data: allProjects } = await supabase
@@ -95,7 +68,7 @@ export default async function ProjectsPage({
         {projects && projects.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {projects.map((project) => (
-              <ProjectCard key={project.id} project={project} />
+              <ProjectCard key={project.id} project={project} showMatchScore />
             ))}
           </div>
         ) : (

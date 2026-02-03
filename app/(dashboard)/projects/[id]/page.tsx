@@ -84,6 +84,48 @@ export default async function ProjectDetailPage({
     .select('*', { count: 'exact', head: true })
     .eq('project_id', project.id)
 
+  // Calculate match score if user has a profile
+  let matchScore = 0
+  let matchingSkills: string[] = []
+  let userProfile: { role?: string; skills?: string[]; embedding?: string } | null = null
+
+  if (user) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('embedding, skills, role')
+      .eq('id', user.id)
+      .single()
+
+    userProfile = profile
+
+    if (profile?.embedding && project.embedding) {
+      const userEmbedding = JSON.parse(profile.embedding)
+      const projectEmbedding = JSON.parse(project.embedding)
+
+      // Calculate cosine similarity
+      let dotProduct = 0
+      let normA = 0
+      let normB = 0
+
+      for (let i = 0; i < userEmbedding.length; i++) {
+        dotProduct += userEmbedding[i] * projectEmbedding[i]
+        normA += userEmbedding[i] * userEmbedding[i]
+        normB += projectEmbedding[i] * projectEmbedding[i]
+      }
+
+      matchScore = dotProduct / (Math.sqrt(normA) * Math.sqrt(normB))
+
+      // Find matching skills
+      matchingSkills = profile.skills.filter(skill =>
+        project.required_skills.includes(skill)
+      )
+
+      // Add skill bonus
+      const skillBonus = matchingSkills.length * 0.05
+      matchScore = Math.min(matchScore + skillBonus, 1)
+    }
+  }
+
   const isCreator = user.id === project.creator_id
   const hasApplied = !!existingApplication
 
@@ -237,6 +279,16 @@ export default async function ProjectDetailPage({
                 </div>
               </CardContent>
             </Card>
+
+            {/* Match Explanation */}
+            {!isCreator && matchScore > 0 && (
+              <MatchExplanation
+                matchScore={matchScore}
+                matchingSkills={matchingSkills}
+                requiredSkills={project.required_skills}
+                userRole={userProfile?.role || 'developer'}
+              />
+            )}
           </div>
         </div>
       </div>
