@@ -3,9 +3,9 @@
 import { createClient } from '@/lib/supabase/server'
 import { profileSchema, type ProfileFormData } from '@/lib/validations/profile'
 import { redirect } from 'next/navigation'
+import { generateEmbedding, createProfileEmbeddingText } from '@/lib/ai/embeddings'
 
 export async function createProfile(data: ProfileFormData) {
-  // Validate data server-side
   const validationResult = profileSchema.safeParse(data)
   
   if (!validationResult.success) {
@@ -14,11 +14,26 @@ export async function createProfile(data: ProfileFormData) {
 
   const supabase = await createClient()
 
-  // Get current user
   const { data: { user }, error: authError } = await supabase.auth.getUser()
 
   if (authError || !user) {
     return { error: 'Not authenticated' }
+  }
+
+  // Generate embedding for the profile
+  let embedding: number[] | null = null
+  try {
+    const embeddingText = createProfileEmbeddingText({
+      bio: validationResult.data.bio,
+      skills: validationResult.data.skills,
+      research_interests: validationResult.data.research_interests,
+      role: validationResult.data.role,
+    })
+    
+    embedding = await generateEmbedding(embeddingText)
+  } catch (error) {
+    console.error('Failed to generate embedding:', error)
+    // Continue without embedding - non-blocking
   }
 
   // Insert profile
@@ -33,6 +48,7 @@ export async function createProfile(data: ProfileFormData) {
       skills: validationResult.data.skills,
       research_interests: validationResult.data.research_interests,
       github_username: validationResult.data.github_username || null,
+      embedding: embedding ? JSON.stringify(embedding) : null,
     })
 
   if (insertError) {

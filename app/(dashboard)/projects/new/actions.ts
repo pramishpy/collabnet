@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { projectSchema, type ProjectFormData } from '@/lib/validations/project'
 import { revalidatePath } from 'next/cache'
+import { generateEmbedding, createProjectEmbeddingText } from '@/lib/ai/embeddings'
 
 export async function createProject(data: ProjectFormData) {
   const validationResult = projectSchema.safeParse(data)
@@ -13,14 +14,12 @@ export async function createProject(data: ProjectFormData) {
 
   const supabase = await createClient()
 
-  // Get current user
   const { data: { user }, error: authError } = await supabase.auth.getUser()
 
   if (authError || !user) {
     return { error: 'Not authenticated' }
   }
 
-  // Check if user has a profile
   const { data: profile } = await supabase
     .from('profiles')
     .select('id')
@@ -29,6 +28,21 @@ export async function createProject(data: ProjectFormData) {
 
   if (!profile) {
     return { error: 'Please create your profile first' }
+  }
+
+  // Generate embedding for the project
+  let embedding: number[] | null = null
+  try {
+    const embeddingText = createProjectEmbeddingText({
+      title: validationResult.data.title,
+      description: validationResult.data.description,
+      required_skills: validationResult.data.required_skills,
+    })
+    
+    embedding = await generateEmbedding(embeddingText)
+  } catch (error) {
+    console.error('Failed to generate project embedding:', error)
+    // Continue without embedding - non-blocking
   }
 
   // Insert project
@@ -41,6 +55,7 @@ export async function createProject(data: ProjectFormData) {
       required_skills: validationResult.data.required_skills,
       max_collaborators: validationResult.data.max_collaborators,
       status: validationResult.data.status,
+      embedding: embedding ? JSON.stringify(embedding) : null,
     })
     .select()
     .single()

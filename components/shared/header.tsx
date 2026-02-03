@@ -9,13 +9,16 @@ export async function Header() {
   return (
     <header className="border-b">
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-        <Link href="/" className="text-2xl font-bold">
+        <Link href="/dashboard" className="text-2xl font-bold">
           CollabNet
         </Link>
 
         <nav className="flex gap-4 items-center">
           {user ? (
             <>
+              <Button variant="ghost" asChild>
+                <Link href="/dashboard">Dashboard</Link>
+              </Button>
               <Button variant="ghost" asChild>
                 <Link href="/projects">Projects</Link>
               </Button>
