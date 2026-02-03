@@ -46,6 +46,10 @@ export default async function AnalyticsPage() {
     ? Math.round((acceptedApplications / totalApplications) * 100) 
     : 0
 
+  const acceptedPercent = totalApplications > 0 ? (acceptedApplications / totalApplications) * 100 : 0
+  const pendingPercent = totalApplications > 0 ? (pendingApplications / totalApplications) * 100 : 0
+  const rejectedPercent = totalApplications > 0 ? (rejectedApplications / totalApplications) * 100 : 0
+
   // Calculate average match score
   const avgMatchScore = applications && applications.length > 0
     ? applications.reduce((sum, app) => sum + (app.match_score || 0), 0) / applications.length
@@ -176,12 +180,11 @@ export default async function AnalyticsPage() {
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="text-2xl font-bold">{acceptedApplications}</span>
-                  <div className="w-64 bg-muted rounded-full h-2">
-                    <div 
-                      className="bg-green-500 h-2 rounded-full transition-all"
-                      style={{ width: `${totalApplications > 0 ? (acceptedApplications / totalApplications) * 100 : 0}%` }}
-                    />
-                  </div>
+                  <progress
+                    value={acceptedPercent}
+                    max={100}
+                    className="w-64 h-2 overflow-hidden rounded-full bg-muted appearance-none [&::-webkit-progress-bar]:bg-muted [&::-webkit-progress-value]:bg-green-500 [&::-webkit-progress-value]:rounded-full [&::-moz-progress-bar]:bg-green-500"
+                  />
                 </div>
               </div>
 
@@ -192,12 +195,11 @@ export default async function AnalyticsPage() {
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="text-2xl font-bold">{pendingApplications}</span>
-                  <div className="w-64 bg-muted rounded-full h-2">
-                    <div 
-                      className="bg-yellow-500 h-2 rounded-full transition-all"
-                      style={{ width: `${totalApplications > 0 ? (pendingApplications / totalApplications) * 100 : 0}%` }}
-                    />
-                  </div>
+                  <progress
+                    value={pendingPercent}
+                    max={100}
+                    className="w-64 h-2 overflow-hidden rounded-full bg-muted appearance-none [&::-webkit-progress-bar]:bg-muted [&::-webkit-progress-value]:bg-yellow-500 [&::-webkit-progress-value]:rounded-full [&::-moz-progress-bar]:bg-yellow-500"
+                  />
                 </div>
               </div>
 
@@ -208,12 +210,11 @@ export default async function AnalyticsPage() {
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="text-2xl font-bold">{rejectedApplications}</span>
-                  <div className="w-64 bg-muted rounded-full h-2">
-                    <div 
-                      className="bg-red-500 h-2 rounded-full transition-all"
-                      style={{ width: `${totalApplications > 0 ? (rejectedApplications / totalApplications) * 100 : 0}%` }}
-                    />
-                  </div>
+                  <progress
+                    value={rejectedPercent}
+                    max={100}
+                    className="w-64 h-2 overflow-hidden rounded-full bg-muted appearance-none [&::-webkit-progress-bar]:bg-muted [&::-webkit-progress-value]:bg-red-500 [&::-webkit-progress-value]:rounded-full [&::-moz-progress-bar]:bg-red-500"
+                  />
                 </div>
               </div>
             </div>
