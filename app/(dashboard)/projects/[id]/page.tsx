@@ -116,7 +116,7 @@ export default async function ProjectDetailPage({
       matchScore = dotProduct / (Math.sqrt(normA) * Math.sqrt(normB))
 
       // Find matching skills
-      matchingSkills = profile.skills.filter(skill =>
+      matchingSkills = profile.skills.filter((skill: string) =>
         project.required_skills.includes(skill)
       )
 

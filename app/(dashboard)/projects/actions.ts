@@ -82,7 +82,7 @@ export async function getProjectsWithMatchScores(filters: {
     let matchScore = dotProduct / (Math.sqrt(normA) * Math.sqrt(normB))
 
     // Skill matching
-    const matchingSkills = userProfile.skills.filter(skill =>
+    const matchingSkills = (userProfile.skills ?? []).filter((skill: string) =>
       project.required_skills.includes(skill)
     )
 

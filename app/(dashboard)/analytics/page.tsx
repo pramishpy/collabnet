@@ -269,7 +269,8 @@ export default async function AnalyticsPage() {
             <CardContent>
               <div className="flex flex-wrap gap-2">
                 {profile.skills.map((skill: string) => {
-                  const isInDemand = skillCounts[skill] > 0
+                  const skillCount = skillCounts[skill] ?? 0
+                  const isInDemand = skillCount > 0
                   return (
                     <Badge 
                       key={skill} 
@@ -279,7 +280,7 @@ export default async function AnalyticsPage() {
                       {skill}
                       {isInDemand && (
                         <span className="ml-1 text-xs">
-                          ({skillCounts[skill]})
+                          ({skillCount})
                         </span>
                       )}
                     </Badge>
